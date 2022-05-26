@@ -4,9 +4,9 @@ import { useMutation } from '@apollo/client';
 import { ADD_THOUGHT } from '../../utils/mutations';
 import { QUERY_THOUGHTS, QUERY_ME } from '../../utils/queries';
 
-// MUI
-import Button from '@mui/material/Button';
-import SendIcon from '@mui/icons-material/Send';
+// // MUI
+// import Button from '@mui/material/Button';
+// import SendIcon from '@mui/icons-material/Send';
 
 const ThoughtForm = () => {
   const [thoughtText, setText] = useState('');
