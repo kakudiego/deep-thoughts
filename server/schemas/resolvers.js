@@ -6,10 +6,7 @@ const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        const userData = await User.findOne({ _id: context.user._id })
-          .select('-__v -password')
-          .populate('thoughts')
-          .populate('friends');
+        const userData = await User.findOne({ _id: context.user._id }).select('-__v -password').populate('thoughts').populate('friends');
 
         return userData;
       }
@@ -17,16 +14,10 @@ const resolvers = {
       throw new AuthenticationError('Not logged in');
     },
     users: async () => {
-      return User.find()
-        .select('-__v -password')
-        .populate('thoughts')
-        .populate('friends');
+      return User.find().select('-__v -password').populate('thoughts').populate('friends');
     },
     user: async (parent, { username }) => {
-      return User.findOne({ username })
-        .select('-__v -password')
-        .populate('friends')
-        .populate('thoughts');
+      return User.findOne({ username }).select('-__v -password').populate('friends').populate('thoughts');
     },
     thoughts: async (parent, { username }) => {
       const params = username ? { username } : {};
@@ -34,7 +25,7 @@ const resolvers = {
     },
     thought: async (parent, { _id }) => {
       return Thought.findOne({ _id });
-    }
+    },
   },
 
   Mutation: {
@@ -62,13 +53,12 @@ const resolvers = {
     },
     addThought: async (parent, args, context) => {
       if (context.user) {
-        const thought = await Thought.create({ ...args, username: context.user.username });
+        const thought = await Thought.create({
+          ...args,
+          username: context.user.username,
+        });
 
-        await User.findByIdAndUpdate(
-          { _id: context.user._id },
-          { $push: { thoughts: thought._id } },
-          { new: true }
-        );
+        await User.findByIdAndUpdate({ _id: context.user._id }, { $push: { thoughts: thought._id } }, { new: true });
 
         return thought;
       }
@@ -79,7 +69,11 @@ const resolvers = {
       if (context.user) {
         const updatedThought = await Thought.findOneAndUpdate(
           { _id: thoughtId },
-          { $push: { reactions: { reactionBody, username: context.user.username } } },
+          {
+            $push: {
+              reactions: { reactionBody, username: context.user.username },
+            },
+          },
           { new: true, runValidators: true }
         );
 
@@ -90,18 +84,14 @@ const resolvers = {
     },
     addFriend: async (parent, { friendId }, context) => {
       if (context.user) {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { friends: friendId } },
-          { new: true }
-        ).populate('friends');
+        const updatedUser = await User.findOneAndUpdate({ _id: context.user._id }, { $addToSet: { friends: friendId } }, { new: true }).populate('friends');
 
         return updatedUser;
       }
 
       throw new AuthenticationError('You need to be logged in!');
-    }
-  }
+    },
+  },
 };
 
 module.exports = resolvers;
